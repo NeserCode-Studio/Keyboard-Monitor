@@ -8,7 +8,7 @@
 	},
 	"package": {
 		"productName": "keyboard-monitor",
-		"version": "0.0.0"
+		"version": "1.0.0-alpha.1"
 	},
 	"tauri": {
 		"allowlist": {
@@ -36,11 +36,17 @@
 		"windows": [
 			{
 				"fullscreen": false,
-				"resizable": true,
-				"title": "keyboard-monitor",
-				"width": 400,
-				"height": 200
+				"resizable": false,
+				"title": "Keyboard Monitor",
+				"width": 300,
+				"height": 200,
+				"visible": false,
+				"alwaysOnTop": true
 			}
-		]
+		],
+		"systemTray": {
+			"iconPath": "icons/icon.png",
+			"iconAsTemplate": true
+		}
 	}
 }

@@ -2,9 +2,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+
 use rdev::{listen, Event, EventType, Key};
 use tauri::Manager;
 use ws::listen as ws_listen;
+
+mod tray;
 
 fn get_key_name(key: Key) -> String {
     let key_some = Key::from(key);
@@ -127,13 +130,6 @@ struct Payload {
     key: String,
 }
 
-#[tauri::command]
-fn use_devtools(app_handle: tauri::AppHandle) {
-    let window = app_handle.get_window("main").unwrap();
-    window.close_devtools();
-    window.open_devtools();
-}
-
 fn main() {
     let context = tauri::generate_context!();
 
@@ -183,8 +179,9 @@ fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![use_devtools])
         .device_event_filter(tauri::DeviceEventFilter::Always)
+        .system_tray(tray::menu()) // ✅ 将 `tauri.conf.json` 上配置的图标添加到系统托盘
+        .on_system_tray_event(tray::handler) // ✅ 注册系统托盘事件处理程序
         .run(context)
         .expect("error while running application");
 }

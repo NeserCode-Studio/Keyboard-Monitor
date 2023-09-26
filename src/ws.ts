@@ -1,8 +1,14 @@
+import { WsReadyState } from "./types.d.js"
+
 export class Ws {
 	private _ws: WebSocket
 
 	constructor(path: string) {
 		this._ws = new WebSocket(path)
+	}
+
+	get state() {
+		return WsReadyState[this._ws.readyState]
 	}
 
 	set onMessage(cb: (data: string) => void) {
