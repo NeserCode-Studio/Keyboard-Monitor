@@ -20,4 +20,4 @@ Overall, KM barely ranks among lightweight programs, both in terms of installati
 
 ## License
 
-This project is licensed under the [GUNv3](./LICENSE) license.
+This project is licensed under the [GNUv3](./LICENSE) license.
