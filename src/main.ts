@@ -1,56 +1,61 @@
 import { listen } from "@tauri-apps/api/event"
-import { getVersion } from "@tauri-apps/api/app"
+import { appWindow } from "@tauri-apps/api/window"
 
+import { Fs } from "./fs.js"
 import { Ws } from "./ws.js"
-import type { Payload } from "./types.d.js"
+import type { Payload, KeyboardEventPackage, Config } from "./types.d.js"
 
-const WS_URL = "ws://127.0.0.1:3012"
-let keyQueue: string[] = []
+const fs = new Fs()
+let isAlwaysOnTop = false
 
-const app = document.getElementById("app")!
-const state = document.querySelector("span.state")!
-const version = document.querySelector("span.version")!
-const tip = document.querySelector("span.listen")!
-const display = document.querySelector("span.display")!
-const prefixDisplay = document.querySelector("span.prefix.d")!
-
-function updateState() {
-	app && (state.innerHTML = `${ws.state}`)
-	if (!keyQueue.length) {
-		display.innerHTML = `No key being pressed.`
-		prefixDisplay.innerHTML = `[Display]`
-	} else {
-		display.innerHTML = keyQueue.join("·")
-		prefixDisplay.innerHTML = `[Display ${keyQueue.length}]`
-	}
+async function setAlwaysOnTop() {
+	await appWindow.setAlwaysOnTop(!isAlwaysOnTop)
+	isAlwaysOnTop = !isAlwaysOnTop
 }
 
-const ws = new Ws(WS_URL)
-tip.innerHTML = `${WS_URL}`
-ws.onMessage = (...args) => {
-	console.log(`Message ${[...args]}`)
-}
+window.onload = async () => {
+	setTimeout(async () => {
+		const cfg: Config = await fs.getConfig()
+		const { websocket: wsConfig } = cfg
+		const WS_URL = `${wsConfig.protocol}://${wsConfig.scope}:${wsConfig.port}`
+		const ws = new Ws(WS_URL)
 
-const unlisten = async () => {
-	return await listen<Payload>("key", (event) => {
-		ws.send(JSON.stringify(event.payload))
-
-		if (!keyQueue.includes(event.payload.key)) {
-			keyQueue.push(event.payload.key)
+		ws.onMessage = async (...args) => {
+			await fs.log(`Ws Message ${[...args]}`, "INFO")
+		}
+		ws.onConnect = async () => {
+			await fs.log(`Ws Connected`, "DEBUG")
+		}
+		ws.onClose = async () => {
+			await fs.log(`Ws Closed`, "DEBUG")
 		}
 
-		if (event.payload.action === "release") {
-			keyQueue = keyQueue.filter((k) => k !== event.payload.key)
+		const unlisten = async () => {
+			return await listen<Payload>("key", (event) => {
+				const payload: Payload = event.payload
+				const keyboardPackage: KeyboardEventPackage = {
+					...payload,
+					t: Date.now(),
+				}
+
+				ws.send(JSON.stringify(keyboardPackage))
+			})
 		}
 
-		updateState()
-	})
-}
+		setTimeout(async () => {
+			await fs.log("KM Listening...", "INFO")
 
-document.oncontextmenu = (e: Event) => {
-	e.preventDefault()
-}
-getVersion().then((v) => (version.innerHTML = `${v}`))
+			window.onerror = async (e) => {
+				await fs.log(`${JSON.stringify(e)}`, "ERROR")
+			}
+		}, 1000)
+		unlisten()
+	}, 500)
 
-updateState()
-unlisten()
+	;(document.querySelector(".app") as HTMLDivElement).addEventListener(
+		"dblclick",
+		() => {
+			setAlwaysOnTop()
+		}
+	)
+}

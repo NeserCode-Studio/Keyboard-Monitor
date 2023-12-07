@@ -7,21 +7,31 @@
 		"withGlobalTauri": false
 	},
 	"package": {
-		"productName": "keyboard-monitor",
-		"version": "1.0.0-alpha.1"
+		"productName": "Keyboard Monitor",
+		"version": "1.0.0-beta.1"
 	},
 	"tauri": {
 		"allowlist": {
 			"all": false,
+			"path": {
+				"all": true
+			},
 			"shell": {
 				"all": false,
-				"open": true
+				"open": "^([a-zA-Z]:(([\\\\/])[^\\\\/:*?<>|]+)*([\\\\/])[^\\\\/:*?<>|]+\\.[^\\\\/:*?<>|]+,)*[a-zA-Z]:(([\\\\/])[^\\\\/:*?<>|]+)*([\\\\/])[^\\\\/:*?<>|]+\\.[^\\\\/:*?<>|]+$"
+			},
+			"fs": {
+				"all": true,
+				"scope": ["$APPDATA", "$APPDATA/*", "$APPDATA/logs", "$APPDATA/logs/**"]
+			},
+			"window": {
+				"all": true
 			}
 		},
 		"bundle": {
 			"active": true,
 			"targets": "nsis",
-			"identifier": "com.nesercode.keyboard-monitor.dev",
+			"identifier": "com.nesercode.keyboard-monitor.beta",
 			"icon": [
 				"icons/32x32.png",
 				"icons/128x128.png",
@@ -38,10 +48,13 @@
 				"fullscreen": false,
 				"resizable": false,
 				"title": "Keyboard Monitor",
-				"width": 300,
-				"height": 200,
+				"width": 70,
+				"height": 30,
+				"maxWidth": 70,
+				"maxHeight": 30,
 				"visible": false,
-				"alwaysOnTop": true
+				"decorations": false,
+				"skipTaskbar": true
 			}
 		],
 		"systemTray": {

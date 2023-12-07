@@ -1,3 +1,20 @@
+# Websocket Keyboard Event Standard
+
+## Overview
+
+This document defines a standard for the communication of keyboard events over a WebSocket connection.
+
+## Terminology and Definitions
+
+- **WebSocket** - A protocol for bidirectional communication between a client and a server.
+- **Keyboard Event** - An event that is dispatched by connected keyboards.
+- **Keyboard Event Payload** - The data sent by tarui backend.
+
+### Key Definitions
+
+TypeScript definitions of the key type.
+
+```ts
 export enum Key {
 	"Alt" = 0,
 	"AltGr" = 1,
@@ -108,37 +125,23 @@ export enum Key {
 	"Function" = 104,
 	"Unknown" = 105,
 }
+```
 
+### Payload and Package Definitions
+
+TypeScript definitions of the event payload and websocket package.
+
+```ts
 export interface Payload {
 	action: string
 	key: Key
 }
 
-export enum WsReadyState {
-	CONNECTING = 0,
-	OPEN = 1,
-	CLOSING = 2,
-	CLOSED = 3,
-}
-
-export type LogState = "ERROR" | "INIT" | "OK"
-export type logLevel = "ERROR" | "WARN" | "INFO" | "DEBUG"
-
 export interface KeyboardEventPackage extends Payload {
 	t: number
 }
+```
 
-export interface WebsocketConfig {
-	protocol: "ws" | "wss"
-	scope: string
-	port: string
-}
-export interface LoggerConfig {
-	maxLogs: number
-	maxLogDays: number
-}
+## Disclaimer
 
-export interface Config {
-	websocket: WebsocketConfig
-	logger: LoggerConfig
-}
+This standard don't be modified for other software, and just for the purpose of the project.
